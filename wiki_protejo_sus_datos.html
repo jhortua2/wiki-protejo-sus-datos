@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiki – Protejo sus Datos | Sistemas Operativos II</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2330;
+    --border: #30363d;
+    --accent: #2ea043;
+    --accent2: #58a6ff;
+    --accent3: #f0883e;
+    --danger: #da3633;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --heading-font: 'Playfair Display', serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --body: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: fixed;
+    top: 0; left: 0;
+    overflow-y: auto;
+    z-index: 100;
+  }
+
+  .sidebar-logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  .sidebar-logo .badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .sidebar-logo h2 {
+    font-family: var(--heading-font);
+    font-size: 18px;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .sidebar-logo p {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+
+  .nav-section {
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .nav-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    margin-bottom: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--muted);
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active {
+    background: var(--surface2);
+    color: var(--accent2);
+    border-color: var(--border);
+  }
+
+  .nav-item .icon { font-size: 14px; width: 18px; text-align: center; }
+
+  /* MAIN */
+  .main {
+    margin-left: 260px;
+    flex: 1;
+    padding: 40px 48px;
+    max-width: 960px;
+  }
+
+  /* PAGE */
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* BREADCRUMB */
+  .breadcrumb {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .breadcrumb span { color: var(--accent2); }
+
+  /* TITLES */
+  h1.page-title {
+    font-family: var(--heading-font);
+    font-size: 42px;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--text) 40%, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 32px;
+    font-family: var(--mono);
+  }
+
+  h2.section-title {
+    font-family: var(--heading-font);
+    font-size: 22px;
+    margin-bottom: 16px;
+    color: var(--text);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3.sub-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent2);
+    font-family: var(--mono);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  p { font-size: 14px; line-height: 1.7; color: #c9d1d9; margin-bottom: 16px; }
+
+  /* CARDS */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+
+  .card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+
+  .card .card-icon { font-size: 28px; margin-bottom: 12px; }
+  .card .card-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .card .card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* PROS/CONS */
+  .pro-con-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .pro-box, .con-box {
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid;
+  }
+
+  .pro-box {
+    background: rgba(46, 160, 67, 0.07);
+    border-color: rgba(46, 160, 67, 0.3);
+  }
+
+  .con-box {
+    background: rgba(218, 54, 51, 0.07);
+    border-color: rgba(218, 54, 51, 0.3);
+  }
+
+  .pro-box .box-title { color: var(--accent); font-weight: 700; font-size: 13px; margin-bottom: 12px; }
+  .con-box .box-title { color: var(--danger); font-weight: 700; font-size: 13px; margin-bottom: 12px; }
+
+  .item-list { list-style: none; }
+  .item-list li {
+    font-size: 13px;
+    color: #c9d1d9;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+  .item-list li:last-child { border-bottom: none; }
+  .item-list li .dot { flex-shrink: 0; margin-top: 6px; }
+
+  /* RISK BADGES */
+  .risk-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .risk-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--danger);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .risk-item .risk-icon { font-size: 20px; flex-shrink: 0; }
+  .risk-item .risk-title { font-size: 13px; font-weight: 600; color: var(--danger); margin-bottom: 4px; }
+  .risk-item .risk-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* TABLE */
+  .wiki-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 13px;
+  }
+  .wiki-table th {
+    background: var(--surface2);
+    color: var(--accent2);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  .wiki-table td {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    color: #c9d1d9;
+    vertical-align: top;
+  }
+  .wiki-table tr:hover td { background: var(--surface2); }
+
+  /* ARCH DIAGRAM */
+  .arch-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 24px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #c9d1d9;
+    line-height: 2;
+  }
+
+  .arch-layer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+  .arch-layer.cloud { background: rgba(88, 166, 255, 0.08); border-color: rgba(88, 166, 255, 0.3); }
+  .arch-layer.server { background: rgba(46, 160, 67, 0.08); border-color: rgba(46, 160, 67, 0.3); }
+  .arch-layer.client { background: rgba(240, 136, 62, 0.08); border-color: rgba(240, 136, 62, 0.3); }
+  .arch-layer.security { background: rgba(218, 54, 51, 0.08); border-color: rgba(218, 54, 51, 0.3); }
+
+  .arch-arrow {
+    text-align: center;
+    color: var(--muted);
+    font-size: 18px;
+    margin: 4px 0;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+  }
+  .tag-blue { background: rgba(88,166,255,0.15); color: var(--accent2); }
+  .tag-green { background: rgba(46,160,67,0.15); color: var(--accent); }
+  .tag-orange { background: rgba(240,136,62,0.15); color: var(--accent3); }
+  .tag-red { background: rgba(218,54,51,0.15); color: var(--danger); }
+
+  /* INFO BOX */
+  .info-box {
+    background: rgba(88,166,255,0.07);
+    border: 1px solid rgba(88,166,255,0.25);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #c9d1d9;
+    line-height: 1.6;
+  }
+  .info-box strong { color: var(--accent2); }
+
+  /* AUTHORS */
+  .author-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .author-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; color: #fff; flex-shrink: 0;
+  }
+  .author-name { font-weight: 600; font-size: 14px; }
+  .author-role { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+  /* HOME HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 36px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(46,160,67,0.12) 0%, transparent 70%);
+  }
+  .hero .hero-tag { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .hero h1 { font-family: var(--heading-font); font-size: 32px; margin-bottom: 12px; }
+  .hero p { font-size: 14px; color: var(--muted); max-width: 580px; margin-bottom: 0; }
+
+  .quick-nav {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .qn-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .qn-item:hover { border-color: var(--accent2); background: var(--surface2); }
+  .qn-item .qn-icon { font-size: 24px; margin-bottom: 8px; }
+  .qn-item .qn-label { font-size: 12px; font-weight: 600; color: var(--text); }
+  .qn-item .qn-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 700px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 20px; }
+    .pro-con-grid { grid-template-columns: 1fr; }
+    .quick-nav { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="badge">Wiki</div>
+    <h2>Protejo sus Datos</h2>
+    <p>Sistemas Operativos II · 2026</p>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Inicio</div>
+    <div class="nav-item active" onclick="showPage('home')">
+      <span class="icon">🏠</span> Portada
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Contenido</div>
+    <div class="nav-item" onclick="showPage('red-p2p')">
+      <span class="icon">🔗</span> Red P2P
+    </div>
+    <div class="nav-item" onclick="showPage('seguridad')">
+      <span class="icon">🔐</span> Evaluación de Seguridad
+    </div>
+    <div class="nav-item" onclick="showPage('cliente-servidor')">
+      <span class="icon">🖥️</span> Red Cliente-Servidor
+    </div>
+    <div class="nav-item" onclick="showPage('arquitectura')">
+      <span class="icon">🏗️</span> Arquitectura Propuesta
+    </div>
+    <div class="nav-item" onclick="showPage('usuarios')">
+      <span class="icon">👥</span> Grupos y Perfiles
+    </div>
+    <div class="nav-item" onclick="showPage('conclusiones')">
+      <span class="icon">📌</span> Conclusiones
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Proyecto</div>
+    <div class="nav-item" onclick="showPage('autores')">
+      <span class="icon">🎓</span> Autores
+    </div>
+    <div class="nav-item" onclick="showPage('bibliografia')">
+      <span class="icon">📚</span> Bibliografía
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="hero">
+      <div class="hero-tag">Actividad Evaluativa – Eje 02</div>
+      <h1>Protejo sus Datos</h1>
+      <p>Análisis de arquitecturas de red y propuesta de solución segura para una empresa de almacenamiento en la nube con garantías de confidencialidad y disponibilidad 24/7.</p>
+    </div>
+
+    <h2 class="section-title">Navegación rápida</h2>
+    <div class="quick-nav">
+      <div class="qn-item" onclick="showPage('red-p2p')">
+        <div class="qn-icon">🔗</div>
+        <div class="qn-label">Red P2P</div>
+        <div class="qn-sub">Propuesta inicial</div>
+      </div>
+      <div class="qn-item" onclick="showPage('seguridad')">
+        <div class="qn-icon">🔐</div>
+        <div class="qn-label">Seguridad</div>
+        <div class="qn-sub">Riesgos y consecuencias</div>
+      </div>
+      <div class="qn-item" onclick="showPage('cliente-servidor')">
+        <div class="qn-icon">🖥️</div>
+        <div class="qn-label">Cliente-Servidor</div>
+        <div class="qn-sub">Ventajas y desventajas</div>
+      </div>
+      <div class="qn-item" onclick="showPage('arquitectura')">
+        <div class="qn-icon">🏗️</div>
+        <div class="qn-label">Arquitectura</div>
+        <div class="qn-sub">Propuesta técnica</div>
+      </div>
+      <div class="qn-item" onclick="showPage('usuarios')">
+        <div class="qn-icon">👥</div>
+        <div class="qn-label">Perfiles</div>
+        <div class="qn-sub">Grupos de usuarios</div>
+      </div>
+      <div class="qn-item" onclick="showPage('conclusiones')">
+        <div class="qn-icon">📌</div>
+        <div class="qn-label">Conclusiones</div>
+        <div class="qn-sub">Cierre del trabajo</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Objetivos del trabajo</h2>
+    <div class="info-box">
+      <strong>Objetivo General:</strong> Proponer una arquitectura de red adecuada para la empresa "Protejo sus Datos", evaluando las implicaciones técnicas y de seguridad de las diferentes opciones disponibles.
+    </div>
+    <ul class="item-list">
+      <li><span class="dot">→</span> Identificar el tipo de red que se implementaría con la propuesta inicial de los directivos.</li>
+      <li><span class="dot">→</span> Evaluar las consecuencias de seguridad de una red entre iguales en el contexto dado.</li>
+      <li><span class="dot">→</span> Describir las condiciones necesarias para implementar una red cliente-servidor.</li>
+      <li><span class="dot">→</span> Comparar las ventajas y desventajas de la arquitectura cliente-servidor.</li>
+      <li><span class="dot">→</span> Proponer una arquitectura de red completa con roles, sistemas operativos y perfiles de usuario.</li>
+    </ul>
+  </div>
+
+  <!-- RED P2P -->
+  <div class="page" id="page-red-p2p">
+    <div class="breadcrumb">Wiki <span>/</span> Red P2P</div>
+    <h1 class="page-title">Red Peer-to-Peer</h1>
+    <p class="page-subtitle">Propuesta inicial de los directivos · Conexión via switch compartido</p>
+
+    <div class="info-box">
+      La propuesta inicial consiste en conectar los computadores a través de un <strong>switch compartiendo únicamente el acceso a internet</strong>. Esto implementaría una red entre iguales (P2P), donde cada equipo actúa simultáneamente como cliente y servidor, sin un nodo centralizado.
+    </div>
+
+    <h2 class="section-title">Ventajas técnicas</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon">💰</div>
+        <div class="card-title">Bajo costo inicial</div>
+        <div class="card-desc">No requiere servidor dedicado ni licencias especializadas.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚙️</div>
+        <div class="card-title">Configuración simple</div>
+        <div class="card-desc">Basta con un switch y una conexión a internet.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">👤</div>
+        <div class="card-title">Pocos usuarios</div>
+        <div class="card-desc">Suficiente para un número muy reducido de usuarios con necesidades básicas.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧑‍💼</div>
+        <div class="card-title">Sin admin dedicado</div>
+        <div class="card-desc">No requiere administrador de red a tiempo completo.</div>
+      </div>
+    </div>
+
+    <h2 class="section-title">¿Por qué no es suficiente?</h2>
+    <p>Para una empresa cuyo modelo de negocio se fundamenta en la <strong>confidencialidad</strong> y la <strong>disponibilidad 24/7</strong>, esta arquitectura presenta riesgos críticos que la hacen inviable. Ver sección de Evaluación de Seguridad.</p>
+    <div class="tag tag-red">Sin control centralizado</div>
+    <div class="tag tag-red">Sin autenticación robusta</div>
+    <div class="tag tag-red">Sin auditoría</div>
+    <div class="tag tag-red">Vulnerable a malware</div>
+  </div>
+
+  <!-- SEGURIDAD -->
+  <div class="page" id="page-seguridad">
+    <div class="breadcrumb">Wiki <span>/</span> Evaluación de Seguridad</div>
+    <h1 class="page-title">Riesgos de la Red P2P</h1>
+    <p class="page-subtitle">Consecuencias en materia de seguridad de la información</p>
+
+    <div class="risk-list">
+      <div class="risk-item">
+        <div class="risk-icon">🔓</div>
+        <div>
+          <div class="risk-title">Ausencia de control centralizado</div>
+          <div class="risk-desc">Sin un servidor que valide credenciales, cualquier equipo conectado al switch podría acceder a recursos compartidos sin autenticación robusta.</div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon">🕵️</div>
+        <div>
+          <div class="risk-title">Riesgo sobre la confidencialidad</div>
+          <div class="risk-desc">Los ingenieros podrían acceder a información administrativa y viceversa, violando el principio de mínimo privilegio.</div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon">⏱️</div>
+        <div>
+          <div class="risk-title">Riesgo sobre la disponibilidad</div>
+          <div class="risk-desc">Si un equipo falla o es comprometido por malware, puede afectar la conectividad del resto, comprometiendo la promesa del servicio 24/7.</div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon">📋</div>
+        <div>
+          <div class="risk-title">Ausencia de auditoría</div>
+          <div class="risk-desc">No existen registros centralizados de quién accede a qué recurso ni cuándo. Imposible rastrear incidentes.</div>
+        </div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-icon">🦠</div>
+        <div>
+          <div class="risk-title">Vulnerabilidad ante ataques internos</div>
+          <div class="risk-desc">En redes P2P, un equipo infectado puede propagar amenazas a todos los demás sin barreras de contención.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Conclusión de seguridad:</strong> Una red P2P es incompatible con el modelo de negocio de "Protejo sus Datos". La arquitectura expone datos sensibles de clientes a riesgos inaceptables, tanto internos como externos.
+    </div>
+  </div>
+
+  <!-- CLIENTE-SERVIDOR -->
+  <div class="page" id="page-cliente-servidor">
+    <div class="breadcrumb">Wiki <span>/</span> Red Cliente-Servidor</div>
+    <h1 class="page-title">Red Cliente-Servidor</h1>
+    <p class="page-subtitle">Condiciones, ventajas y desventajas de la arquitectura recomendada</p>
+
+    <h2 class="section-title">Condiciones para implementarla</h2>
+    <ul class="item-list" style="margin-bottom:24px">
+      <li><span class="dot">🖥️</span> <strong>Hardware servidor dedicado:</strong> Multiprocesamiento simétrico, alta RAM y almacenamiento redundante (RAID).</li>
+      <li><span class="dot">💿</span> <strong>Sistema operativo de red:</strong> Windows Server, Linux (distro servidor) u otro SO especializado.</li>
+      <li><span class="dot">🔌</span> <strong>Infraestructura de red:</strong> Switch gestionable, cableado Cat6+ y configuración de VLANs para segmentar tráfico.</li>
+      <li><span class="dot">🌐</span> <strong>Definición de dominio:</strong> Todos los equipos clientes deben unirse al dominio administrado por el servidor.</li>
+      <li><span class="dot">🔒</span> <strong>Política de seguridad:</strong> Grupos de usuarios, perfiles de acceso, contraseñas robustas y auditoría de eventos.</li>
+      <li><span class="dot">☁️</span> <strong>Conectividad segura a la nube:</strong> Configuración de VPN o conexión dedicada para la gestión de servicios en Amazon Cloud.</li>
+    </ul>
+
+    <h2 class="section-title">Comparativa: Ventajas vs Desventajas</h2>
+    <div class="pro-con-grid">
+      <div class="pro-box">
+        <div class="box-title">✅ Ventajas</div>
+        <ul class="item-list">
+          <li><span class="dot" style="color:var(--accent)">+</span> Control centralizado de acceso y credenciales.</li>
+          <li><span class="dot" style="color:var(--accent)">+</span> Políticas de dominio, cifrado y firewall centralizado.</li>
+          <li><span class="dot" style="color:var(--accent)">+</span> Escalabilidad horizontal y vertical.</li>
+          <li><span class="dot" style="color:var(--accent)">+</span> Backups centralizados, garantizando disponibilidad.</li>
+          <li><span class="dot" style="color:var(--accent)">+</span> Integridad de datos verificada en cliente, tránsito y almacenamiento.</li>
+          <li><span class="dot" style="color:var(--accent)">+</span> Reducción de costos operativos con servicios centralizados.</li>
+        </ul>
+      </div>
+      <div class="con-box">
+        <div class="box-title">❌ Desventajas</div>
+        <ul class="item-list">
+          <li><span class="dot" style="color:var(--danger)">−</span> Costo inicial elevado: hardware, licencias y personal.</li>
+          <li><span class="dot" style="color:var(--danger)">−</span> Punto único de falla sin redundancia adecuada.</li>
+          <li><span class="dot" style="color:var(--danger)">−</span> Complejidad de administración y mantenimiento.</li>
+          <li><span class="dot" style="color:var(--danger)">−</span> Dependencia del servidor: si cae, los clientes quedan sin recursos.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARQUITECTURA -->
+  <div class="page" id="page-arquitectura">
+    <div class="breadcrumb">Wiki <span>/</span> Arquitectura Propuesta</div>
+    <h1 class="page-title">Arquitectura Propuesta</h1>
+    <p class="page-subtitle">Solución cliente-servidor segura, escalable y con integración cloud</p>
+
+    <h2 class="section-title">Diagrama de capas</h2>
+    <div class="arch-box">
+      <div class="arch-layer cloud">
+        <span style="font-size:20px">☁️</span>
+        <div>
+          <div style="color:var(--accent2);font-weight:600">Capa Cloud – Amazon AWS</div>
+          <div style="color:var(--muted);font-size:11px">Almacenamiento en la nube · Acceso vía VPN / conexión dedicada · Autenticación 2FA</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↕</div>
+      <div class="arch-layer security">
+        <span style="font-size:20px">🛡️</span>
+        <div>
+          <div style="color:var(--danger);font-weight:600">Capa de Seguridad Perimetral</div>
+          <div style="color:var(--muted);font-size:11px">Firewall físico · VPN · IPTables / Windows Defender · Segmentación con VLANs</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↕</div>
+      <div class="arch-layer server">
+        <span style="font-size:20px">🖥️</span>
+        <div>
+          <div style="color:var(--accent);font-weight:600">Servidor Principal</div>
+          <div style="color:var(--muted);font-size:11px">Windows Server 2022 / Ubuntu Server 22.04 LTS · Active Directory / Samba · RAID 5 · 32 GB RAM+</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↕</div>
+      <div class="arch-layer client">
+        <span style="font-size:20px">💻</span>
+        <div>
+          <div style="color:var(--accent3);font-weight:600">Equipos Cliente</div>
+          <div style="color:var(--muted);font-size:11px">Windows 11 Pro / Ubuntu Desktop · Unidos al dominio · Acceso según perfil de usuario</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Sistemas operativos sugeridos</h2>
+    <table class="wiki-table">
+      <tr>
+        <th>Componente</th>
+        <th>Sistema Operativo</th>
+        <th>Función principal</th>
+      </tr>
+      <tr>
+        <td>Servidor</td>
+        <td><span class="tag tag-blue">Windows Server 2022</span> <span class="tag tag-green">Ubuntu Server 22.04</span></td>
+        <td>Active Directory / Samba, gestión de dominio, autenticación, backups</td>
+      </tr>
+      <tr>
+        <td>Clientes</td>
+        <td><span class="tag tag-blue">Windows 11 Pro</span> <span class="tag tag-green">Ubuntu Desktop</span></td>
+        <td>Estaciones de trabajo según perfil de usuario</td>
+      </tr>
+    </table>
+
+    <h2 class="section-title">Sistema de archivos y seguridad</h2>
+    <ul class="item-list">
+      <li><span class="dot">📁</span> <strong>NTFS</strong> en servidor Windows (descriptores de seguridad y marcas MACE para auditoría) o <strong>EXT4</strong> en Linux.</li>
+      <li><span class="dot">🔥</span> <strong>Firewall</strong> físico perimetral + Windows Defender / IPTables en equipos cliente.</li>
+      <li><span class="dot">🔐</span> <strong>VPN</strong> para acceso remoto seguro a los servicios de Amazon desde cualquier ubicación.</li>
+      <li><span class="dot">🔑</span> <strong>Autenticación de doble factor</strong> para acceso al servidor y a los servicios Cloud.</li>
+      <li><span class="dot">🔒</span> <strong>Política de contraseñas</strong> robustas, gestionadas desde el dominio con caducidad periódica obligatoria.</li>
+    </ul>
+  </div>
+
+  <!-- USUARIOS -->
+  <div class="page" id="page-usuarios">
+    <div class="breadcrumb">Wiki <span>/</span> Grupos y Perfiles</div>
+    <h1 class="page-title">Grupos de Usuarios</h1>
+    <p class="page-subtitle">Perfiles de acceso según el rol dentro de la organización</p>
+
+    <table class="wiki-table">
+      <tr>
+        <th>Grupo</th>
+        <th>Acceso permitido</th>
+        <th>Restricciones</th>
+      </tr>
+      <tr>
+        <td><span class="tag tag-green">Administradores de sistema</span></td>
+        <td>Acceso total al servidor, configuración de servicios y conexión con Amazon AWS.</td>
+        <td>Ninguna.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">Personal administrativo</span></td>
+        <td>Carpetas de documentos, correo interno, internet.</td>
+        <td>Sin acceso a consolas de administración.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-orange">Ingenieros de configuración</span></td>
+        <td>Herramientas cloud, consolas AWS, repositorios de configuración.</td>
+        <td>Sin acceso a datos administrativos.</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">Invitados / Soporte externo</span></td>
+        <td>Solo internet.</td>
+        <td>Sin acceso a ningún recurso interno.</td>
+      </tr>
+    </table>
+
+    <div class="info-box">
+      <strong>Principio de mínimo privilegio:</strong> Cada usuario accede únicamente a los recursos estrictamente necesarios para su función, limitando el impacto potencial de un acceso no autorizado o compromiso de credenciales.
+    </div>
+  </div>
+
+  <!-- CONCLUSIONES -->
+  <div class="page" id="page-conclusiones">
+    <div class="breadcrumb">Wiki <span>/</span> Conclusiones</div>
+    <h1 class="page-title">Conclusiones</h1>
+    <p class="page-subtitle">Cierre del análisis y recomendaciones finales</p>
+
+    <div class="info-box" style="border-color:rgba(46,160,67,0.4);background:rgba(46,160,67,0.07);">
+      Para una empresa como "Protejo sus Datos", la elección de la arquitectura de red <strong>no es un asunto menor ni exclusivamente económico</strong>. La arquitectura cliente-servidor, aunque más costosa en su implementación inicial, garantiza el control centralizado, la escalabilidad y las políticas de seguridad necesarias para cumplir con las promesas de confidencialidad y disponibilidad que el negocio exige.
+    </div>
+
+    <h2 class="section-title">Puntos clave</h2>
+    <ul class="item-list">
+      <li><span class="dot" style="color:var(--danger)">✗</span> Implementar una red P2P significaría exponer datos sensibles a riesgos inaceptables de seguridad.</li>
+      <li><span class="dot" style="color:var(--accent)">✓</span> La arquitectura cliente-servidor permite centralizar el control de acceso y auditoría.</li>
+      <li><span class="dot" style="color:var(--accent)">✓</span> La segmentación por VLANs y grupos de usuarios garantiza el principio de mínimo privilegio.</li>
+      <li><span class="dot" style="color:var(--accent)">✓</span> La integración con Amazon AWS con VPN y 2FA asegura la capa cloud del servicio.</li>
+      <li><span class="dot" style="color:var(--accent2)">→</span> Como ingenieros de sistemas, la mayor responsabilidad es proteger la información de quienes confían en los sistemas diseñados.</li>
+    </ul>
+  </div>
+
+  <!-- AUTORES -->
+  <div class="page" id="page-autores">
+    <div class="breadcrumb">Wiki <span>/</span> Autores</div>
+    <h1 class="page-title">Autores</h1>
+    <p class="page-subtitle">Sistemas Operativos II · 202610 · 1A-11 · Fundación Universitaria del Área Andina</p>
+
+    <div class="author-card">
+      <div class="author-avatar">AJ</div>
+      <div>
+        <div class="author-name">Andres Camilo Jimenez Peña</div>
+        <div class="author-role">Ingeniería de Sistemas</div>
+      </div>
+    </div>
+    <div class="author-card">
+      <div class="author-avatar">JH</div>
+      <div>
+        <div class="author-name">Johan Steven Hortua Segura</div>
+        <div class="author-role">Ingeniería de Sistemas</div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px">
+      <h3 class="sub-title">Docente</h3>
+      <p>Carlos Henry Lopez Bermudez</p>
+      <h3 class="sub-title" style="margin-top:12px">Institución</h3>
+      <p>Fundación Universitaria del Área Andina · Bogotá D.C., Colombia · Mayo 2026</p>
+    </div>
+  </div>
+
+  <!-- BIBLIOGRAFÍA -->
+  <div class="page" id="page-bibliografia">
+    <div class="breadcrumb">Wiki <span>/</span> Bibliografía</div>
+    <h1 class="page-title">Bibliografía</h1>
+    <p class="page-subtitle">Referencias utilizadas en el desarrollo del trabajo</p>
+
+    <div class="arch-box" style="font-family:var(--body);line-height:1.8">
+      <p style="margin-bottom:16px">
+        <span class="tag tag-blue">[1]</span><br>
+        López Urrea, L. (s.f.). <em>Sistemas operativos II – Eje 2: Analicemos la situación.</em> Fundación Universitaria del Área Andina.
+      </p>
+      <p style="margin-bottom:16px">
+        <span class="tag tag-blue">[2]</span><br>
+        FS. (2022, July 12). <em>Redes cliente-servidor vs. redes peer-to-peer.</em> FS.com.<br>
+        <span style="color:var(--accent2)">https://www.fs.com/es/blog/client-server-vs-peer-to-peer-networks-5464.html</span>
+      </p>
+      <p>
+        <span class="tag tag-blue">[3]</span><br>
+        <em>Sistemas operativos en red ¿Cómo los mantenemos a salvo?</em> (2024, March 8). MuyCanal.<br>
+        <span style="color:var(--accent2)">https://www.muycanal.com/2024/03/08/sistemas-operativos-en-red-ciberseguridad</span>
+      </p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(id)) {
+        n.classList.add('active');
+      }
+    });
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
